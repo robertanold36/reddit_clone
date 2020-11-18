@@ -40,7 +40,7 @@ public class JwtConfig {
         this.expirationTime = expirationTime;
     }
 
-    private String getAuthorizationHeader(){
+    public String getAuthorizationHeader(){
         return HttpHeaders.AUTHORIZATION;
     }
 }
