@@ -13,7 +13,6 @@ import com.example.demo.model.Person;
 import com.example.demo.model.RefreshToken;
 import com.example.demo.model.VerificationToken;
 import com.example.demo.repository.PersonRepository;
-import com.example.demo.repository.RefreshTokenRepository;
 import com.example.demo.repository.VerificationTokenRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +20,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -59,7 +58,8 @@ public class AuthService {
             String token=generateVerificationToken(person);
             mailService.sendMail(
                     new NotificationEmail(
-                            "Please activate the email",person.getEmail(),"Please click the link " +
+                            "Please activate the email",person.getEmail(),
+                            "Please click the link " +
                             "below to activate your email :" +
                             "http://localhost:8081/api/auth/account/verification/"+token
                     )
@@ -77,7 +77,8 @@ public class AuthService {
     }
 
     public AuthenticationResponse login(LoginRequest loginRequest) {
-        Authentication authentication=authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+        Authentication authentication=authenticationManager.authenticate(new
+                UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
                 loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -115,5 +116,11 @@ public class AuthService {
                 .expireAt(Instant.now().plusMillis(jwtConfig.getExpirationTime()))
                 .build();
 
+    }
+
+    @Transactional(readOnly = true)
+    public Person getCurrentUser(){
+        User principal =(User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return personRepository.findByUsername(principal.getUsername()).orElseThrow(()->new SpringRedditException("user with username +"+principal.getUsername()+" no found"));
     }
 }

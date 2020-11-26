@@ -24,8 +24,12 @@ public class UserDetailsImplService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        Person person = personRepository.findByUsername(s).orElseThrow(() -> new SpringRedditException("person not found with username " + s));
-        return new User(person.getUsername(),person.getPassword(),person.isEnabled(),true,true,true,getAuthorities("USER"));
+        Person person = personRepository.findByUsername(s).orElseThrow(() ->
+                new SpringRedditException("person not found with username " + s));
+
+        return new User(person.getUsername(),person.getPassword(),person.isEnabled(),
+                true,true,
+                true,getAuthorities("USER"));
 
     }
 

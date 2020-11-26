@@ -23,7 +23,7 @@ public class Post {
     @Nullable
     private String description;
 
-    @NotBlank(message = "description must not blank")
+    @NotBlank(message = "post name must not blank")
     private String postName;
 
     private Instant createdDate;
