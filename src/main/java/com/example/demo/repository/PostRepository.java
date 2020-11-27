@@ -14,4 +14,5 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     List<Post> findBySubreddit(Subreddit subreddit_not_found);
 
     List<Post> findByPerson(Person person);
+
 }
